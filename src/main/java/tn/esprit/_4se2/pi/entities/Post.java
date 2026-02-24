@@ -1,11 +1,11 @@
 package tn.esprit._4se2.pi.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -37,9 +37,11 @@ public class Post {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "post")
     private List<Comment> comments = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "post")
     private List<Like> likes = new ArrayList<>();
 }

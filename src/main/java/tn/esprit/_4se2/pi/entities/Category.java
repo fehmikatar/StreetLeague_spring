@@ -1,28 +1,46 @@
 package tn.esprit._4se2.pi.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-
-
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "categories")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Category {
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 
+public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
-    private String name;
+    @Column(nullable = false, unique = true)
+    String nom;
 
+    String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_category_id")
+    Category parentCategory;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "parentCategory", cascade = CascadeType.ALL)
+    @Builder.Default
+    List<Category> subCategories = new ArrayList<>();
+
+    @JsonIgnore
     @OneToMany(mappedBy = "category")
-    private List<Post> posts = new ArrayList<>();
+    @Builder.Default
+    List<Product> products = new ArrayList<>();
+
+    @Column(name = "created_at")
+    LocalDateTime createdAt;
 }

@@ -1,5 +1,6 @@
 package tn.esprit._4se2.pi.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,9 +30,11 @@ public class Team {
     @JoinColumn(name = "responsible_id")
     private User responsible;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "team")
     private List<TeamMember> members = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "team")
     private List<Message> messages = new ArrayList<>();
 }
