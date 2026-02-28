@@ -10,21 +10,20 @@ public class HealthMetrics {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "health_profile_id")
     private HealthProfile healthProfile;
 
-    private Double weight;              // Poids (kg)
-    private Double muscleMass;           // Masse musculaire (%)
-    private Double bodyFat;              // Masse grasse (%)
-    private Double hydration;            // Hydratation (%)
-    private Integer restingHeartRate;    // Fréquence cardiaque au repos
-    private Integer systolicBP;          // Tension systolique
-    private Integer diastolicBP;         // Tension diastolique
-    private Integer sleepHours;          // Heures de sommeil
-    private Integer stressLevel;         // Niveau de stress (1-10)
-    private Integer energyLevel;         // Niveau d'énergie (1-10)
-
+    private Double weight;
+    private Double muscleMass;
+    private Double bodyFat;
+    private Double hydration;
+    private Integer restingHeartRate;
+    private Integer systolicBP;
+    private Integer diastolicBP;
+    private Integer sleepHours;
+    private Integer stressLevel;
+    private Integer energyLevel;
     private LocalDateTime measuredAt;
     private String notes;
 

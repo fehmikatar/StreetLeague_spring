@@ -1,6 +1,5 @@
 package tn.esprit.se2.laakommanel.pi.repositories;
 
-
 import tn.esprit.se2.laakommanel.pi.entites.MedicalRecord;
 import tn.esprit.se2.laakommanel.pi.entites.InjuryType;
 import tn.esprit.se2.laakommanel.pi.entites.RecoveryStatus;
@@ -14,55 +13,54 @@ import java.util.List;
 @Repository
 public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, Long> {
 
-    // Trouver par profil santé
-    List<MedicalRecord> findByHealthProfileId(Long healthProfileId);
+    // ✅ CORRIGÉ: Find by health profile
+    @Query("SELECT mr FROM MedicalRecord mr WHERE mr.healthProfile.id = :healthProfileId")
+    MedicalRecord findByHealthProfileId(@Param("healthProfileId") Long healthProfileId);
 
-    // Trouver par type de blessure
+    // ✅ OK: injuryType est une propriété directe
     List<MedicalRecord> findByInjuryType(InjuryType injuryType);
 
-    // Trouver par statut de récupération
+    // ✅ OK: recoveryStatus est une propriété directe
     List<MedicalRecord> findByRecoveryStatus(RecoveryStatus status);
 
-    // Trouver par médecin traitant
-    List<MedicalRecord> findByTreatedById(Long doctorId);
-
-    // Blessures actives (non terminées)
-    @Query("SELECT mr FROM MedicalRecord mr WHERE mr.recoveryStatus != 'COMPLETED'")
-    List<MedicalRecord> findActiveInjuries();
-
-    // Compter les blessures actives
-    @Query("SELECT COUNT(mr) FROM MedicalRecord mr WHERE mr.recoveryStatus != 'COMPLETED'")
-    Long countActiveInjuries();
-
-    // Blessures par période
+    // ✅ CORRIGÉ: Find by injury date between
     List<MedicalRecord> findByInjuryDateBetween(LocalDate startDate, LocalDate endDate);
 
-    // Récupérations prévues dans la semaine
-    @Query("SELECT mr FROM MedicalRecord mr WHERE mr.expectedRecoveryDate BETWEEN :start AND :end")
-    List<MedicalRecord> findRecoveriesBetween(
-            @Param("start") LocalDate start,
-            @Param("end") LocalDate end);
+    // ✅ CORRIGÉ: Find by health profile and injury type
+    @Query("SELECT mr FROM MedicalRecord mr WHERE mr.healthProfile.id = :healthProfileId AND mr.injuryType = :injuryType")
+    MedicalRecord findByHealthProfileIdAndInjuryType(@Param("healthProfileId") Long healthProfileId,
+                                                     @Param("injuryType") InjuryType injuryType);
 
-    // Statistiques par type de blessure
-    @Query("SELECT mr.injuryType, COUNT(mr) FROM MedicalRecord mr GROUP BY mr.injuryType")
-    List<Object[]> getInjuryTypeStatistics();
+    // ✅ OK: search by diagnosis
+    @Query("SELECT mr FROM MedicalRecord mr WHERE mr.diagnosis LIKE %:keyword%")
+    List<MedicalRecord> searchByDiagnosis(@Param("keyword") String keyword);
 
-    // Temps de récupération moyen par type de blessure
-    @Query("SELECT mr.injuryType, AVG(DATEDIFF(mr.actualRecoveryDate, mr.injuryDate)) " +
-            "FROM MedicalRecord mr WHERE mr.actualRecoveryDate IS NOT NULL GROUP BY mr.injuryType")
-    List<Object[]> getAverageRecoveryTimeByInjuryType();
+    // ✅ CORRIGÉ: Find records after a given date
+    @Query("SELECT mr FROM MedicalRecord mr WHERE mr.healthProfile.id = :healthProfileId AND mr.injuryDate >= :startDate")
+    List<MedicalRecord> findHealthProfileRecordsAfterDate(@Param("healthProfileId") Long healthProfileId,
+                                                          @Param("startDate") LocalDate startDate);
 
-    // Patients d'un médecin
-    @Query("SELECT DISTINCT mr.healthProfile FROM MedicalRecord mr WHERE mr.treatedBy.id = :doctorId")
-    List<Object[]> findPatientsByDoctor(@Param("doctorId") Long doctorId);
+    // ✅ CORRIGÉ: Find by doctor
+    @Query("SELECT mr FROM MedicalRecord mr WHERE mr.treatedBy.id = :doctorId")
+    List<MedicalRecord> findByDoctorId(@Param("doctorId") Long doctorId);
 
-    // Recherche avancée
-    @Query("SELECT mr FROM MedicalRecord mr WHERE " +
-            "(:healthProfileId IS NULL OR mr.healthProfile.id = :healthProfileId) AND " +
-            "(:injuryType IS NULL OR mr.injuryType = :injuryType) AND " +
-            "(:status IS NULL OR mr.recoveryStatus = :status)")
-    List<MedicalRecord> searchMedicalRecords(
-            @Param("healthProfileId") Long healthProfileId,
-            @Param("injuryType") InjuryType injuryType,
-            @Param("status") RecoveryStatus status);
+    // ✅ OK: count by injury type
+    Long countByInjuryType(InjuryType injuryType);
+
+    // ✅ CORRIGÉ: Get average recovery time by injury type
+    @Query("SELECT AVG(DATEDIFF(mr.actualRecoveryDate, mr.injuryDate)) FROM MedicalRecord mr " +
+            "WHERE mr.injuryType = :injuryType AND mr.recoveryStatus = 'RECOVERED' AND mr.actualRecoveryDate IS NOT NULL")
+    Double getAverageRecoveryTimeByInjuryType(@Param("injuryType") InjuryType injuryType);
+
+    // ✅ NOUVEAU: Find records requiring follow-up
+    List<MedicalRecord> findByRequiresFollowUpTrue();
+
+    // ✅ NOUVEAU: Find records by doctor and date range
+    @Query("SELECT mr FROM MedicalRecord mr WHERE mr.treatedBy.id = :doctorId AND mr.injuryDate BETWEEN :start AND :end")
+    List<MedicalRecord> findByDoctorIdAndDateRange(@Param("doctorId") Long doctorId,
+                                                   @Param("start") LocalDate start,
+                                                   @Param("end") LocalDate end);
+
+    // ✅ NOUVEAU: Find active records (not yet recovered)
+    List<MedicalRecord> findByRecoveryStatusNot(RecoveryStatus status);
 }

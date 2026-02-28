@@ -11,7 +11,7 @@ public class MedicalRecord {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "health_profile_id")
     private HealthProfile healthProfile;
 
@@ -32,9 +32,9 @@ public class MedicalRecord {
     private String medication;
     private Boolean requiresFollowUp;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "treated_by_doctor_id")
-    private Doctor treatedBy;
+    private User treatedBy;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -90,8 +90,8 @@ public class MedicalRecord {
     public Boolean getRequiresFollowUp() { return requiresFollowUp; }
     public void setRequiresFollowUp(Boolean requiresFollowUp) { this.requiresFollowUp = requiresFollowUp; }
 
-    public Doctor getTreatedBy() { return treatedBy; }
-    public void setTreatedBy(Doctor treatedBy) { this.treatedBy = treatedBy; }
+    public User getTreatedBy() { return treatedBy; }
+    public void setTreatedBy(User treatedBy) { this.treatedBy = treatedBy; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

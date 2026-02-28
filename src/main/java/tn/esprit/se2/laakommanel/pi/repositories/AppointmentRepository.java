@@ -12,55 +12,40 @@ import java.util.List;
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
-    // Trouver par utilisateur
-    List<Appointment> findByUserId(Long userId);
+    // ✅ Par userId (corrigé)
+    @Query("SELECT a FROM Appointment a WHERE a.user.id = :userId")
+    List<Appointment> findByUserId(@Param("userId") Long userId);
 
-    // Trouver par docteur
+    // ✅ Par userId et status
+    @Query("SELECT a FROM Appointment a WHERE a.user.id = :userId AND a.status = :status")
+    List<Appointment> findByUserIdAndStatus(@Param("userId") Long userId,
+                                            @Param("status") AppointmentStatus status);
+
+    // ✅ Par doctorId (fonctionne car doctor est une entité)
     List<Appointment> findByDoctorId(Long doctorId);
 
-    // Trouver par statut
+    // ✅ Par status
     List<Appointment> findByStatus(AppointmentStatus status);
 
-    // Trouver par date
-    List<Appointment> findByAppointmentDateBetween(LocalDateTime start, LocalDateTime end);
+    // ✅ CORRIGÉ: utilisation de appointmentDate au lieu de date
+    @Query("SELECT a FROM Appointment a WHERE a.appointmentDate BETWEEN :start AND :end")
+    List<Appointment> findByAppointmentDateBetween(@Param("start") LocalDateTime start,
+                                                   @Param("end") LocalDateTime end);
 
-    // Rendez-vous du jour
-    @Query("SELECT a FROM Appointment a WHERE DATE(a.appointmentDate) = CURRENT_DATE")
-    List<Appointment> findTodayAppointments();
+    // ✅ Par doctorId et date (corrigé)
+    @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId AND a.appointmentDate BETWEEN :start AND :end")
+    List<Appointment> findByDoctorIdAndAppointmentDateBetween(@Param("doctorId") Long doctorId,
+                                                              @Param("start") LocalDateTime start,
+                                                              @Param("end") LocalDateTime end);
 
-    // Compter les rendez-vous du jour
-    @Query("SELECT COUNT(a) FROM Appointment a WHERE DATE(a.appointmentDate) = CURRENT_DATE")
-    Long countTodayAppointments();
+    // ✅ Count by doctorId
+    Long countByDoctorId(Long doctorId);
 
-    // Rendez-vous à venir (futurs)
-    @Query("SELECT a FROM Appointment a WHERE a.appointmentDate > :now AND a.status = 'SCHEDULED'")
-    List<Appointment> findUpcomingAppointments(@Param("now") LocalDateTime now);
+    // ✅ Rendez-vous à venir pour un utilisateur (corrigé)
+    @Query("SELECT a FROM Appointment a WHERE a.user.id = :userId AND a.appointmentDate > CURRENT_TIMESTAMP ORDER BY a.appointmentDate")
+    List<Appointment> findUpcomingAppointmentsByUser(@Param("userId") Long userId);
 
-    // Rendez-vous passés
-    @Query("SELECT a FROM Appointment a WHERE a.appointmentDate < :now")
-    List<Appointment> findPastAppointments(@Param("now") LocalDateTime now);
-
-    // Vérifier disponibilité
-    @Query("SELECT COUNT(a) FROM Appointment a WHERE " +
-            "a.doctor.id = :doctorId AND " +
-            "a.appointmentDate BETWEEN :start AND :end AND " +
-            "a.status != 'CANCELLED'")
-    Long countAppointmentsByDoctorAndTimeSlot(
-            @Param("doctorId") Long doctorId,
-            @Param("start") LocalDateTime start,
-            @Param("end") LocalDateTime end);
-
-    // Planning d'un docteur pour une journée
-    @Query("SELECT a FROM Appointment a WHERE " +
-            "a.doctor.id = :doctorId AND " +
-            "DATE(a.appointmentDate) = DATE(:date) " +
-            "ORDER BY a.appointmentDate")
-    List<Appointment> findDoctorSchedule(
-            @Param("doctorId") Long doctorId,
-            @Param("date") LocalDateTime date);
-
-    // Rendez-vous par mois
-    @Query("SELECT MONTH(a.appointmentDate), COUNT(a) FROM Appointment a " +
-            "WHERE YEAR(a.appointmentDate) = :year GROUP BY MONTH(a.appointmentDate)")
-    List<Object[]> getMonthlyAppointmentStats(@Param("year") int year);
+    // ✅ Rendez-vous du jour pour un docteur (corrigé)
+    @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId AND DATE(a.appointmentDate) = CURRENT_DATE")
+    List<Appointment> findTodayAppointmentsByDoctor(@Param("doctorId") Long doctorId);
 }
