@@ -3,7 +3,7 @@ package tn.esprit._4se2.pi.Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit._4se2.pi.entities.User;
-import tn.esprit._4se2.pi.repository.UserRepository;
+import tn.esprit._4se2.pi.repositories.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;

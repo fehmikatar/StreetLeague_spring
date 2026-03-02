@@ -12,26 +12,25 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+        private final UserRepository userRepository;
 
-    @Override
-    public UserDetails loadUserByUsername(String email)
-            throws UsernameNotFoundException {
+        @Override
+        public UserDetails loadUserByUsername(String email)
+                        throws UsernameNotFoundException {
 
-        // 1. Chercher l'utilisateur par email
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new UsernameNotFoundException("User not found: " + email));
+                // 1. Chercher l'utilisateur par email
+                User user = userRepository.findByEmail(email)
+                                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
 
-        // 2. Convertir son rôle en autorité Spring Security
-        var authority = new SimpleGrantedAuthority(user.getRole().name());
+                // 2. Convertir son rôle en autorité Spring Security
+                var authority = new SimpleGrantedAuthority(user.getRole().name());
 
-        // 3. Retourner l'objet UserDetails
-        return org.springframework.security.core.userdetails.User
-                .withUsername(user.getEmail())
-                .password(user.getPasswordHash())
-                .authorities(List.of(authority))
-                .disabled(!user.getIsActive())
-                .build();
-    }
+                // 3. Retourner l'objet UserDetails
+                return org.springframework.security.core.userdetails.User
+                                .withUsername(user.getEmail())
+                                .password(user.getPasswordHash())
+                                .authorities(List.of(authority))
+                                .disabled(!user.isActive())
+                                .build();
+        }
 }

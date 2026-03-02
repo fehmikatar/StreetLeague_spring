@@ -30,6 +30,9 @@ public class User {
     String phone;
     String passwordHash;
 
+    @Enumerated(EnumType.STRING)
+    UserRole role;
+
     LocalDateTime createdAt;
 
     boolean isActive;
@@ -37,4 +40,8 @@ public class User {
     @JsonIgnore
     @OneToMany(mappedBy = "user")
     List<Booking> bookings;
+
+    public enum UserRole {
+        ADMIN, PLAYER, FIELD_OWNER, TEAM_MANAGER
+    }
 }

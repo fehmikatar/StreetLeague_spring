@@ -13,7 +13,10 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "likes", uniqueConstraints = @UniqueConstraint(columnNames = { "user_id", "post_id" }))
+@Table(name = "likes", uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "user_id", "post_id" }, name = "unique_like_post"),
+        @UniqueConstraint(columnNames = { "user_id", "comment_id" }, name = "unique_like_comment")
+})
 public class Like {
 
     @Id
@@ -29,4 +32,8 @@ public class Like {
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
+
+    @ManyToOne
+    @JoinColumn(name = "comment_id")
+    private Comment comment;
 }

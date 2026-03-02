@@ -4,11 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-@Builder
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
-@AllArgsConstructor
+@NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity(name = "Admin")
 @Table(name = "admins")

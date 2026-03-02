@@ -3,7 +3,7 @@ package tn.esprit._4se2.pi.Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit._4se2.pi.entities.Category;
-import tn.esprit._4se2.pi.repository.CategoryRepository;
+import tn.esprit._4se2.pi.repositories.CategoryRepository;
 
 import java.util.List;
 
